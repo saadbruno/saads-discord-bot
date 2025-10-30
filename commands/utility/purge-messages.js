@@ -1,5 +1,6 @@
 // commands/purgeMessages.js
 const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require(`discord.js`);
+const { deleteDuplicateMessages } = require(`../../modules/messages`);
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -49,34 +50,8 @@ module.exports = {
 
         console.log(`${logNamespace} ✅ FOUND! Deleting messages with the same content...`);
 
-        const authorId = targetMessage.author.id;
-        const contentToMatch = targetMessage.content;
+        const res = await deleteDuplicateMessages(targetMessage);
 
-        if (!contentToMatch) {
-            return interaction.editReply(`⚠️ That message has no text content to match.`);
-        }
-
-        let deletedCount = 0;
-
-        // Loop through all text channels and delete matching messages
-        for (const [, channel] of interaction.guild.channels.cache) {
-            if (!channel.isTextBased() || !channel.viewable) continue;
-            console.log(`${logNamespace} 🔎 Deleting messages on channel #${channel.name} (${channel.id})`);
-            try {
-                const messages = await channel.messages.fetch({ limit: 100 });
-                const toDelete = messages.filter(
-                    m => m.author.id === authorId && m.content === contentToMatch,
-                );
-
-                for (const [, msg] of toDelete) {
-                    console.log(`${logNamespace} 🗑️ Deleting message ${msg.id}`);
-                    await msg.delete().catch((e) => { e; });
-                    deletedCount++;
-                }
-            }
-            catch (e) { e; }
-        }
-
-        return interaction.editReply(`✅ Deleted **${deletedCount}** messages from <@${authorId}> that matched the content.`);
+        return interaction.editReply(res);
     },
 };
