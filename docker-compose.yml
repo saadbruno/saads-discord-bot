@@ -1,0 +1,13 @@
+services:
+  discord-bot:
+    image: node:20-alpine
+    container_name: discord-bot
+    working_dir: /usr/src/app
+    command: ["node", "index.js"]
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src/app
+    restart: unless-stopped
