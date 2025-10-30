@@ -3,7 +3,9 @@ const { Events, MessageFlags } = require(`discord.js`);
 module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
+        console.log(`\n:: ${interaction.user.tag} ativou uma interação em #${interaction.channel.name}`);
         if (!interaction.isChatInputCommand()) return;
+        console.log(`   └─ comando ${interaction.commandName}`);
 
         const command = interaction.client.commands.get(interaction.commandName);
 
